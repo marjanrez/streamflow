@@ -16,8 +16,11 @@ mapbox_access_token = "pk.eyJ1IjoiYWJ5Ym9yZGkiLCJhIjoiY2szcDd4d2U0MDBkaTNubXlhdn
 
 app = dash.Dash()
 app.title = 'Streamflow Visualization'
-scl = [ [0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],\
-    [0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"] ]
+scl = [[0.0, "rgb(220, 220, 220)"],
+                [0.25, "rgb(0,128,0)"],
+                [0.5, "rgb(255,255,0)"],
+                [0.75, "rgb(255,69,0)"],
+                [1.0, "rgb(220,220,220)"]]
 
 df2 = []
 locations = {}
