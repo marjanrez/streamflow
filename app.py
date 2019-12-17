@@ -103,17 +103,38 @@ def plot_graph(site,click,graph):
     x = list(avg_flow.keys())
     y = list(avg_flow.values())
 
-    if graph == 'Line graph':
-        trace = [go.Scatter(x=x, y=y, mode='lines',
-                                    marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, )]
-    elif graph == 'Bar Chart':
-        trace = [go.Bar(x=x, y=y)]
-    return {"data": trace,
-            "layout": go.Layout(title="Annual Stream Flow", colorway=['#abd9e9', '#2c7bb6'],
-                                yaxis={"title": "Stream Flow ( cubic feet / sec )"}, xaxis={"title": "Year"})}
+    global traces
+    if traces is not None:
+        if list(traces.keys())[0] != graph:
+            traces = None
+        else:
+            if graph == 'Line graph': 
+                traces['Line graph'] += [go.Scatter(x=x, y=y, mode='lines', fill = 'tozeroy',
+                                        marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, )]
+            elif graph == 'Bar Chart':
+                traces['Bar Chart'] += [go.Bar(x=x, y=y)]
 
+    if traces is None:
+        traces = {}
+        if graph == 'Line graph':
+            traces['Line graph'] = [go.Scatter(x=x, y=y, mode='lines', fill = 'tozeroy',
+                                        marker={'size': 8, "opacity": 0.6, "line": {'width': 0.5}}, )]
+        elif graph == 'Bar Chart':
+            traces['Bar Chart'] = [go.Bar(x=x, y=y)]
 
-fig = dict( data=data, layout=layout)    
+    fig = go.Figure()
+
+    for trace in traces[graph]:
+        fig.add_trace(trace)
+        
+    fig.update_layout(title="Annual Stream Flow", colorway=['#abd9e9', '#2c7bb6'],
+                                yaxis={"title": "Stream Flow ( cubic feet / sec )"}, xaxis={"title": "Year"})
+
+    return fig
+
+fig = dict(data=data, layout=layout)    
+traces = None
+clicks = 0
 
 app.layout = html.Div([
     html.H2("STREAM FLOW"),
@@ -142,9 +163,22 @@ app.layout = html.Div([
             style={ 'margin-top' : '20'},
             figure=fig)]
     ),
+    html.Button('Clear',
+        id='button',
+        value = None),
     dcc.Graph(id='flow-graph')
 ])
 
+@app.callback(
+    Output('button','value'),
+    [Input('button', 'n_clicks')])
+def clear_graph(n_clicks):
+    global clicks
+    if n_clicks is not None:
+        if n_clicks > clicks:
+            global traces
+            traces = None
+            clicks += 1
 
 @app.callback(
     Output('flow-graph', 'figure'),
@@ -154,9 +188,9 @@ def update_figure(site,click,graph):
         site = 10256500
     else:
         site = int(click['points'][0]['text'])
-
     if graph is None:
         graph = 'Line graph'
+    
     return plot_graph(site,click,graph)
 
 if __name__ == '__main__':
