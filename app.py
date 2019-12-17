@@ -77,7 +77,7 @@ data = [ dict(
         )
 ]
 
-def compute_annual_flow(df,site_no):
+def compute_annual_flow(df,site_no,graph):
     date = df['Date'].values
 
     df['Year'] = [x.split('-')[0] for x in date]
@@ -92,14 +92,17 @@ def compute_annual_flow(df,site_no):
     for year in temp['Year'].unique()[1:]: avg_flow[year] = 0
 
     for year in years[1:]:
-        flow = temp[temp['Year']==year]['Streamflow'].mean()
+        if graph == 'Line graph': 
+            flow = temp[temp['Year']==year]['Streamflow'].mean()
+        elif graph == 'Bar Chart':
+            flow = temp[temp['Year']==year]['Streamflow'].min()
 
         avg_flow[year] = flow
 
     return avg_flow
 
 def plot_graph(site,click,graph):
-    avg_flow = compute_annual_flow(df1, site)
+    avg_flow = compute_annual_flow(df1, site, graph)
     x = list(avg_flow.keys())
     y = list(avg_flow.values())
 
